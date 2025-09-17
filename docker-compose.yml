@@ -1,0 +1,126 @@
+
+services:
+    incident_manage_dev_api:
+        image: incident_manage_dev_api:incident_manage_dev_api_v1
+        container_name: incident_manage_dev_api
+        build:
+            context: .
+            dockerfile: ./docker/dev/django/Dockerfile
+        pull_policy: build
+        command: /start
+        volumes:
+            - .:/app
+            - incident_manage_dev_static_volume:/app/staticfiles
+            - incident_manage_dev_media_volume:/app/mediafiles
+        expose:
+            - "8002"
+        env_file:
+            - .env
+        depends_on:
+            - incident_manage_dev_pgdb
+            - redis
+        networks:
+            - incident_manage_dev_network
+
+    incident_manage_dev_client:
+        image: incident_manage_dev_client:incident_manage_dev_react_v1
+        container_name: incident_manage_dev_client
+        build:
+            context: ./client
+            dockerfile: ./docker/dev/Dockerfile
+        pull_policy: build
+        restart: on-failure
+        volumes:
+            - ./client:/app
+            - /app/node_modules
+        env_file:
+            - .env
+        networks:
+            - incident_manage_dev_network
+
+    incident_manage_dev_pgdb:
+        image: postgres:15-alpine
+        container_name: incident_manage_dev_pgdb
+        restart: on-failure
+        ports:
+            - "5433:5432"
+        volumes:
+            # Persisting the DB Data for CI-CD 
+            - incident_manage_dev_pgdb:/var/lib/postgresql/protegk_dev_pgdata
+        env_file:
+            - .env
+        environment:
+            - POSTGRES_DB=${DEV_DB_NAME}
+            - POSTGRES_USER=${DEV_DB_USER}
+            - POSTGRES_PASSWORD=${DEV_DB_PASS}
+        networks:
+            - incident_manage_dev_network
+
+    redis:
+        image: redis:7-alpine
+        restart: on-failure
+        networks:
+            - incident_manage_dev_network
+
+    incident_manage_dev_celery_worker:
+        image: incident_manage_dev_celery_worker:incident_manage_dev_celery_worker_v1
+        build:
+            context: .
+            dockerfile: ./docker/dev/django/Dockerfile
+        pull_policy: build
+        command: /start-celeryworker
+        volumes:
+            - .:/app
+        env_file: 
+            - .env
+        depends_on:
+            - redis
+            - incident_manage_dev_pgdb
+        networks:
+            - incident_manage_dev_network
+
+    incident_manage_dev_flower:
+        image: incident_manage_dev_flower:incident_manage_dev_flower_v1
+        build:
+            context: .
+            dockerfile: ./docker/dev/django/Dockerfile
+        pull_policy: build
+        command: /start-flower
+        volumes: 
+            - .:/app
+        env_file:
+            - .env
+        ports:
+            - "5557:5555"
+        depends_on:
+            - redis
+            - incident_manage_dev_pgdb
+        networks:
+            - incident_manage_dev_network
+
+    incident_manage_dev_nginx:
+        image: incident_manage_dev_nginx:incident_manage_dev_nginx_v1
+        container_name: incident_manage_dev_nginx
+        restart: on-failure
+        depends_on:
+            - incident_manage_dev_api
+        volumes:
+            - incident_manage_dev_static_volume:/app/staticfiles
+            - incident_manage_dev_media_volume:/app/mediafiles
+        build:
+            context: ./docker/dev/nginx
+            dockerfile: Dockerfile
+        pull_policy: build
+        ports:
+            - "8080:80"
+        networks:
+            - incident_manage_dev_network
+
+networks:
+    incident_manage_dev_network:
+        driver: bridge
+
+volumes:
+    incident_manage_dev_pgdb:
+    incident_manage_dev_static_volume:
+    incident_manage_dev_media_volume:

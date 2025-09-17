@@ -1,0 +1,117 @@
+ifneq (,$(wildcard ./.env))
+include .env
+export
+ENV_FILE_PARAM = --env-file .env
+
+endif
+
+# For Docker Dev CI-CD Commands
+build:
+	docker compose up --build
+
+up:
+	docker compose up
+
+restart:
+	docker compose up -d
+
+down:
+	docker compose down
+
+show-logs:
+	docker compose logs
+
+migrate:
+	docker compose exec incident_manage_dev_api python3 manage.py migrate
+
+makemigrations:
+	docker compose exec incident_manage_dev_api python3 manage.py makemigrations
+
+superuser:
+	docker compose exec incident_manage_dev_api python3 manage.py createsuperuser
+
+collectstatic:
+	docker compose exec incident_manage_dev_api python3 manage.py collectstatic --noinput --clear
+
+down-v:
+	docker compose down -v
+
+dbvolume:
+	docker volume inspect incident_manage_dev_pgdb
+
+incident_manage_dev_pgdb:
+	docker compose exec incident_manage_dev_pgdb psql --username=gspgadmin --dbname=gsdevdb
+
+restart-nginx-dev:
+	docker compose exec nginx nginx -s reload
+
+
+# For Docker Production Commands
+build-prod:
+	docker compose -f docker-compose.prod.yml up --build
+
+up-prod:
+	docker compose -f docker-compose.prod.yml up
+
+restart-prod:
+	docker compose -f docker-compose.prod.yml up -d
+
+show-logs-prod:
+	docker compose -f docker-compose.prod.yml logs
+
+migrate-prod:
+	docker compose -f docker-compose.prod.yml exec incident_manage_prod_pgdb python3 manage.py migrate
+
+makemigrations-prod:
+	docker compose -f docker-compose.prod.yml exec incident_manage_prod_pgdb python3 manage.py makemigrations
+
+superuser-prod:
+	docker compose -f docker-compose.prod.yml exec incident_manage_prod_pgdb python3 manage.py createsuperuser
+
+collectstatic-prod:
+	docker compose -f docker-compose.prod.yml exec incident_manage_prod_pgdb python3 manage.py collectstatic --noinput --clear
+
+down-prod:
+	docker compose -f docker-compose.prod.yml down
+
+down-prod-v:
+	docker compose -f docker-compose.prod.yml down -v
+
+dbvolume-prod:
+	docker volume inspect incident_manage_prod_pgdb
+
+incident_manage_prod_pgdb:
+	docker compose -f docker-compose.prod.yml exec incident_manage_prod_pgdb psql --username=gspgadmin --dbname=gsproddb
+
+restart-nginx-prod:
+	docker compose -f docker-compose.prod.yml exec ecom_prod_nginx nginx -s reload
+
+
+
+# Django APP Testing commands - in progress
+test:
+	docker compose exec api pytest -p no:warnings --cov=.
+
+test-html:
+	docker compose exec api pytest -p no:warnings --cov=. --cov-report html
+
+flake8:
+	docker compose exec api flake8 .
+
+black-check:
+	docker compose exec api black --check --exclude=migrations .
+
+black-diff:
+	docker compose exec api black --diff --exclude=migrations .
+
+black:
+	docker compose exec api black --exclude=migrations .
+
+isort-check:
+	docker compose exec api isort . --check-only --skip env --skip migrations
+
+isort-diff:
+	docker compose exec api isort . --diff --skip env --skip migrations
+
+isort:
+	docker compose exec api isort . --skip env --skip migrations

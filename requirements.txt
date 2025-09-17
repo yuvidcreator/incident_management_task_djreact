@@ -1,0 +1,46 @@
+# Core
+setuptools
+wheel
+django==5.1
+djangorestframework==3.15.2
+django-environ==0.11.2
+django-cors-headers==4.4.0
+django-filter==24.2
+django-jazzmin==3.0.0
+
+# Database
+psycopg2-binary==2.9.9
+
+# Async & Queue
+celery==5.3.6
+redis==5.0.1
+flower==2.0.1
+django-celery-email==3.0.0
+
+# Security & Auth
+djangorestframework-simplejwt==5.3.1
+cryptography==42.0.8
+
+# Dev Tools
+flake8==7.0.0
+black==24.3.0
+isort==5.13.2
+watchdog==3.0.0
+pytest-django==4.8.0
+pytest-cov==4.1.0
+pytest-factoryboy==2.6.0
+Faker==24.9.0
+
+# File Handling & Misc
+Pillow==10.3.0
+requests==2.32.0
+PyYAML==6.0.2
+
+# Docs & Schema
+drf-yasg==1.21.7
+jsonschema==4.21.1
+
+# Scheduler
+schedule==1.2.1
+
+gunicorn

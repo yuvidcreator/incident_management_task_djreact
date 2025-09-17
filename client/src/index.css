@@ -1,0 +1,19 @@
+.table thead th {
+    vertical-align: middle;
+}
+
+.modal-lg {
+    max-width: 900px;
+}
+
+/* modal backdrop mimic so modal looks focused */
+.modal-backdrop-custom {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1040;
+}
+
+.modal-show {
+    z-index: 1050;
+}
