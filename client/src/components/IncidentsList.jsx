@@ -112,14 +112,14 @@ export default function IncidentsList() {
             </div>
 
             {/* Add Modal */}
-            {/* <IncidentFormModal
+            <IncidentFormModal
                 show={showAdd}
                 onClose={() => setShowAdd(false)}
                 onCreated={() => {
                     setShowAdd(false);
                     queryClient.invalidateQueries({ queryKey: ['incidents'] });
                 }}
-            /> */}
+            />
 
             {/* Edit Modal */}
             {/* {editIncident && (
